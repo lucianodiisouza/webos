@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  como_fazer: MyText
+  link: MyString
+  ativo: false
+
+two:
+  como_fazer: MyText
+  link: MyString
+  ativo: false

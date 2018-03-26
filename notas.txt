@@ -1,0 +1,80 @@
+Snipets e notas para o Webos_Famig
+
+Listagem de Demandas
+Listagem de usuários
+Listagem de Equipamentos / Recursos
+Solicitação / Agendamento de Recursos
+Relatório gráficos
+Repositório de Procedimentos
+
+rails models para webos
+
+demandas 
+rails g model User name:string cargo:string setor:string ramal:integer notas:text ativo:boolean
+rails g model Demanda titulo:string descricao:text ativo:boolean
+rails g model Equipamento tipo:string descricao:text patrimonio:string ativo:boolean
+rails g model Agendamento data_uso:date hora_uso:time data_uso_fim:date hora_uso_fim:time ativo:boolean
+rails g model Procedimento como_fazer:text link:string ativo:boolean
+
+rails db:migrate
+
+adicionar a gem rails_admin ao gemfile
+
+rails g rails_admin:install
+
+trocar rota no routes.rb
+
+se der pau no EXEC.js adicione no gemfile => gem 'coffee-script-source', '1.8.0' e rode um bundle update 'coffee-script-source'
+
+para adicionar usuarios diretamente no banco de dados adicione essas informações no seed
+# Criando nossos Users --- OBS: Depois que adicionarmos o devise precisamos incluir o email e senha dos users
+User.create name: 'Luciano', cargo: :Analista de Sistemas, setor: :TI, ramal: :206 ativo: :true, 
+User.create name: 'Marcos', cargo: :Auxiliar de informática, setor: :TI, ramal: :2016,  ativo: :true, 
+
+adicionar gem 'devise' para os usuários autenticarem 
+
+rails g devise:install 
+
+rails g devise User
+
+descomentar as linhas do rails_admin referentes ao devise
+
+rake db:drop se o drop nao funcionar apague o DB
+
+rake db:create
+
+rake db:migrate
+
+rake db:seed << talvez, apenas se preencher o arquivo seeds.db
+
+rails g cancan:ability << vai gerar um model com o nome de ability
+
+descomente a linha do cancancan no rails_admin.rb
+
+esse é o model ability do cancan, basicamente nele eu posso atribuir 
+permissoes para os usuarios de acordo com suas classificações (criar uma migration com o campo role)
+
+class Ability
+  include CanCan::Ability
+ 
+  def initialize(user)
+    if user
+      if user.role == 'operador'
+        can :access, :rails_admin
+        can :dashboard
+        can :read, :edit, Demanda, user_id: user.id
+        can :read, Agendamento, ativo: :true
+        can :read, Equipamento, ativo :true
+      elsif user.role == 'gestor'
+        can :manage, :all
+      end
+    end
+  end
+end
+
+modificar os models a serem criados adicionando role:string no User
+e user_id:integer no Demanda
+rails g migration AddRoleToUser role:string
+rails g migration AddUserIdToDemanda role user_id:integer
+role: operador não pode apagar, apenas editar, criar e visualizar seus registros.
+
